@@ -9,32 +9,32 @@
     <meta name="description" content="前言本篇提供一个在Centos7上部署一个Python程序的教程。Python程序被广泛开发与应用，在云服务器部署显得尤为重要，但部署过程繁琐且多坑。 安装OpenSSL 1.1.x构建 Python 3.11 需要openssl 1.1.1及以上更新版本。系统存储库中可用的版本是旧的。可通过如下指令查看OpenSSL版本 1openssl version   下载libffi-devel库运行如">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Centos7部署Python程序">
-<meta property="og:url" content="http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/">
+<meta property="og:url" content="https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/">
 <meta property="og:site_name" content="FoolCoder">
 <meta property="og:description" content="前言本篇提供一个在Centos7上部署一个Python程序的教程。Python程序被广泛开发与应用，在云服务器部署显得尤为重要，但部署过程繁琐且多坑。 安装OpenSSL 1.1.x构建 Python 3.11 需要openssl 1.1.1及以上更新版本。系统存储库中可用的版本是旧的。可通过如下指令查看OpenSSL版本 1openssl version   下载libffi-devel库运行如">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-06-11T11:03:08.000Z">
 <meta property="article:modified_time" content="2024-06-27T11:09:33.355Z">
 <meta property="article:author" content="echen">
-<meta property="article:tag" content="Python">
 <meta property="article:tag" content="Centos7">
+<meta property="article:tag" content="Python">
 <meta property="article:tag" content="服务器部署">
 <meta name="twitter:card" content="summary">
     
     
       
         
-          <link rel="shortcut icon" href="/images/favicon.ico">
+          <link rel="shortcut icon" href="/blog/images/favicon.ico">
         
       
       
         
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          <link rel="icon" type="image/png" href="/blog/images/favicon-192x192.png" sizes="192x192">
         
       
       
         
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon.png">
         
       
     
@@ -49,7 +49,7 @@
 
     <!-- styles -->
     
-<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/blog/css/style.css">
 
     <!-- persian styles -->
     
@@ -80,15 +80,15 @@
     <span id="nav">
       <ul>
         <!--
-       --><li><a href="/">Home</a></li><!--
+       --><li><a href="/blog/">Home</a></li><!--
      --><!--
-       --><li><a href="/archives/">Writing</a></li><!--
+       --><li><a href="/blog/archives/">Writing</a></li><!--
      --><!--
-       --><li><a href="/about/">About</a></li><!--
+       --><li><a href="/blog/about/">About</a></li><!--
      --><!--
-       --><li><a href="/lives/">lives</a></li><!--
+       --><li><a href="/blog/lives/">lives</a></li><!--
      --><!--
-       --><li><a href="/search/">Search</a></li><!--
+       --><li><a href="/blog/search/">Search</a></li><!--
      -->
       </ul>
     </span>
@@ -97,7 +97,7 @@
       <ul>
         
         
-        <li><a class="icon" aria-label="Next post" href="/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Next post" href="/blog/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -110,17 +110,17 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&text=Centos7部署Python程序"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&is_video=false&description=Centos7部署Python程序"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Centos7部署Python程序&body=Check out this article: http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&name=Centos7部署Python程序&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&t=Centos7部署Python程序"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&text=Centos7部署Python程序"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&is_video=false&description=Centos7部署Python程序"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Centos7部署Python程序&body=Check out this article: https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&name=Centos7部署Python程序&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&t=Centos7部署Python程序"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -163,7 +163,7 @@
       
     <div class="article-tag">
         <i class="fa-solid fa-tag"></i>
-        <a class="p-category" href="/tags/Centos7/" rel="tag">Centos7</a>, <a class="p-category" href="/tags/Python/" rel="tag">Python</a>, <a class="p-category" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2/" rel="tag">服务器部署</a>
+        <a class="p-category" href="/blog/tags/Centos7/" rel="tag">Centos7</a>, <a class="p-category" href="/blog/tags/Python/" rel="tag">Python</a>, <a class="p-category" href="/blog/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2/" rel="tag">服务器部署</a>
     </div>
 
 
@@ -216,15 +216,15 @@
     <div id="nav-footer" style="display: none">
       <ul>
         
-          <li><a href="/">Home</a></li>
+          <li><a href="/blog/">Home</a></li>
         
-          <li><a href="/archives/">Writing</a></li>
+          <li><a href="/blog/archives/">Writing</a></li>
         
-          <li><a href="/about/">About</a></li>
+          <li><a href="/blog/about/">About</a></li>
         
-          <li><a href="/lives/">lives</a></li>
+          <li><a href="/blog/lives/">lives</a></li>
         
-          <li><a href="/search/">Search</a></li>
+          <li><a href="/blog/search/">Search</a></li>
         
       </ul>
     </div>
@@ -238,17 +238,17 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&text=Centos7部署Python程序"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&is_video=false&description=Centos7部署Python程序"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Centos7部署Python程序&body=Check out this article: http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&name=Centos7部署Python程序&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&t=Centos7部署Python程序"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&text=Centos7部署Python程序"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&is_video=false&description=Centos7部署Python程序"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Centos7部署Python程序&body=Check out this article: https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&name=Centos7部署Python程序&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://www.foolcoder.com/blog/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&t=Centos7部署Python程序"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -278,15 +278,15 @@
     <nav>
       <ul>
         <!--
-       --><li><a href="/">Home</a></li><!--
+       --><li><a href="/blog/">Home</a></li><!--
      --><!--
-       --><li><a href="/archives/">Writing</a></li><!--
+       --><li><a href="/blog/archives/">Writing</a></li><!--
      --><!--
-       --><li><a href="/about/">About</a></li><!--
+       --><li><a href="/blog/about/">About</a></li><!--
      --><!--
-       --><li><a href="/lives/">lives</a></li><!--
+       --><li><a href="/blog/lives/">lives</a></li><!--
      --><!--
-       --><li><a href="/search/">Search</a></li><!--
+       --><li><a href="/blog/search/">Search</a></li><!--
      -->
       </ul>
     </nav>
@@ -300,21 +300,21 @@
  
   <link
     rel="preload"
-    href="/lib/font-awesome/css/all.min.css"
+    href="/blog/lib/font-awesome/css/all.min.css"
     as="style"
     onload="this.onload=null;this.rel='stylesheet'"
   />
   <noscript
     ><link
       rel="stylesheet"
-      href="/lib/font-awesome/css/all.min.css"
+      href="/blog/lib/font-awesome/css/all.min.css"
   /></noscript>
 
 
     <!-- jquery -->
 
   
-<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/blog/lib/jquery/jquery.min.js"></script>
 
 
 
@@ -324,7 +324,7 @@
 
   
     
-<script src="/lib/clipboard/clipboard.min.js"></script>
+<script src="/blog/lib/clipboard/clipboard.min.js"></script>
 
   
   <script type="text/javascript">
@@ -348,7 +348,7 @@
   </script>
 
 
-<script src="/js/main.js"></script>
+<script src="/blog/js/main.js"></script>
 
 <!-- search -->
 
