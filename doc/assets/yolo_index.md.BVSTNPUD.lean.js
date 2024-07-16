@@ -1,0 +1,1 @@
+import{_ as e,c as t,o}from"./chunks/framework.n7zINWW2.js";const l=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"yolo/index.md","filePath":"yolo/index.md"}'),a={name:"yolo/index.md"};function n(r,s,c,d,i,p){return o(),t("div")}const m=e(a,[["render",n]]);export{l as __pageData,m as default};

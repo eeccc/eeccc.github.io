@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="前言本篇提供一个在Centos7上部署一个Python程序的教程。Python程序被广泛开发与应用，在云服务器部署显得尤为重要，但部署过程繁琐且多坑。 安装OpenSSL 1.1.x构建 Python 3.11 需要openssl 1.1.1及以上更新版本。系统存储库中可用的版本是旧的。可通过如下指令查看OpenSSL版本 1openssl version   下载libffi-devel库运行如">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Centos7部署Python程序">
+<meta property="og:url" content="http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/">
+<meta property="og:site_name" content="FoolCoder">
+<meta property="og:description" content="前言本篇提供一个在Centos7上部署一个Python程序的教程。Python程序被广泛开发与应用，在云服务器部署显得尤为重要，但部署过程繁琐且多坑。 安装OpenSSL 1.1.x构建 Python 3.11 需要openssl 1.1.1及以上更新版本。系统存储库中可用的版本是旧的。可通过如下指令查看OpenSSL版本 1openssl version   下载libffi-devel库运行如">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-06-11T11:03:08.000Z">
+<meta property="article:modified_time" content="2024-06-27T11:09:33.355Z">
+<meta property="article:author" content="echen">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Centos7">
+<meta property="article:tag" content="服务器部署">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Centos7部署Python程序</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/lives/">lives</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&text=Centos7部署Python程序"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&is_video=false&description=Centos7部署Python程序"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Centos7部署Python程序&body=Check out this article: http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&name=Centos7部署Python程序&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&t=Centos7部署Python程序"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85OpenSSL-1-1-x"><span class="toc-number">2.</span> <span class="toc-text">安装OpenSSL 1.1.x</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BDlibffi-devel%E5%BA%93"><span class="toc-number">3.</span> <span class="toc-text">下载libffi-devel库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85Python3-11"><span class="toc-number">4.</span> <span class="toc-text">安装Python3.11</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E7%8E%AF%E5%A2%83"><span class="toc-number">5.</span> <span class="toc-text">虚拟环境</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Centos7部署Python程序
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">echen</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-06-11T11:03:08.000Z" class="dt-published" itemprop="datePublished">2024-06-11</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Centos7/" rel="tag">Centos7</a>, <a class="p-category" href="/tags/Python/" rel="tag">Python</a>, <a class="p-category" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2/" rel="tag">服务器部署</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本篇提供一个在Centos7上部署一个Python程序的教程。Python程序被广泛开发与应用，在云服务器部署显得尤为重要，但部署过程繁琐且多坑。</p>
+<h2 id="安装OpenSSL-1-1-x"><a href="#安装OpenSSL-1-1-x" class="headerlink" title="安装OpenSSL 1.1.x"></a>安装OpenSSL 1.1.x</h2><p>构建 Python 3.11 需要openssl 1.1.1及以上更新版本。系统存储库中可用的版本是旧的。<br>可通过如下指令查看OpenSSL版本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl version</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="下载libffi-devel库"><a href="#下载libffi-devel库" class="headerlink" title="下载libffi-devel库"></a>下载libffi-devel库</h2><p>运行如下指令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install libffi-devel</span><br></pre></td></tr></table></figure>
+<p><em>如果无法下载，自行更换镜像</em></p>
+<h2 id="安装Python3-11"><a href="#安装Python3-11" class="headerlink" title="安装Python3.11"></a>安装Python3.11</h2><p>下载Python3.11的源代码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tgz</span><br></pre></td></tr></table></figure>
+<p><em>如果下载比较慢，也可以从官网下载后通过SFTP传到服务器上。</em><br>提取存档</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar xvf Python-3.11.2.tgz</span><br></pre></td></tr></table></figure>
+<p>进入到解压目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd Python-3.11*/</span><br></pre></td></tr></table></figure>
+<p>配置构建</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LDFLAGS=&quot;$&#123;LDFLAGS&#125; -Wl,-rpath=/usr/local/openssl/lib&quot; ./configure --with-openssl=/usr/local/openssl</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+<p>安装编译</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo make altinstall</span><br></pre></td></tr></table></figure>
+<p>查看Python版是否安装成功</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3.11 --version</span><br></pre></td></tr></table></figure>
+<p>验证OpenSSL是否正常</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python3.11</span><br><span class="line">import ssl</span><br><span class="line">ssl.OPENSSL_VERSION</span><br></pre></td></tr></table></figure>
+<p>查看pip版本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3.11 --version</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="虚拟环境"><a href="#虚拟环境" class="headerlink" title="虚拟环境"></a>虚拟环境</h2><p>如有需要，可以参考。<br><em>我还是喜欢跑全局的(<del>大不了人跑</del>)</em></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python -m venv myenv</span><br><span class="line">source myenv/bin/activate</span><br></pre></td></tr></table></figure>
+<p>查看虚拟环境地址</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo $VIRTUAL_ENV</span><br></pre></td></tr></table></figure>
+<p>退出虚拟环境</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">deactivate</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/lives/">lives</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85OpenSSL-1-1-x"><span class="toc-number">2.</span> <span class="toc-text">安装OpenSSL 1.1.x</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BDlibffi-devel%E5%BA%93"><span class="toc-number">3.</span> <span class="toc-text">下载libffi-devel库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85Python3-11"><span class="toc-number">4.</span> <span class="toc-text">安装Python3.11</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E7%8E%AF%E5%A2%83"><span class="toc-number">5.</span> <span class="toc-text">虚拟环境</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&text=Centos7部署Python程序"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&is_video=false&description=Centos7部署Python程序"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Centos7部署Python程序&body=Check out this article: http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&title=Centos7部署Python程序"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&name=Centos7部署Python程序&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://foolcoder.com/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/&t=Centos7部署Python程序"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2024
+    echen
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/lives/">lives</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+    <!-- jquery -->
+
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+<!-- clipboard -->
+
+  
+    
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

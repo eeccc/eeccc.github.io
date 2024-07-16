@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="前言在实现仔猪腹泻管理系统(Piglet Diarrhea Detection System, 简称PDDS)时，为了实现系统内部可以直接智能检测病原类型，因此尝试过多种模型嵌入后端的方法。最终选取FastAPI来实现该功能。 FastAPI程序将Tensorflow模型的Predict代码改为FastAPI程序的调用代码。 123456789101112131415161718192021222">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FastAPI调用MLP模型">
+<meta property="og:url" content="http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/">
+<meta property="og:site_name" content="FoolCoder">
+<meta property="og:description" content="前言在实现仔猪腹泻管理系统(Piglet Diarrhea Detection System, 简称PDDS)时，为了实现系统内部可以直接智能检测病原类型，因此尝试过多种模型嵌入后端的方法。最终选取FastAPI来实现该功能。 FastAPI程序将Tensorflow模型的Predict代码改为FastAPI程序的调用代码。 123456789101112131415161718192021222">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-06-05T02:38:21.000Z">
+<meta property="article:modified_time" content="2024-06-11T11:07:07.351Z">
+<meta property="article:author" content="echen">
+<meta property="article:tag" content="FastAPI">
+<meta property="article:tag" content="MLP">
+<meta property="article:tag" content="Tensorflow">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>FastAPI调用MLP模型</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/lives/">lives</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/06/11/Centos7%E9%83%A8%E7%BD%B2Python%E7%A8%8B%E5%BA%8F/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/05/27/%E7%8E%89%E7%B1%B3%E9%9B%84%E7%A9%97%E7%9A%84%E6%A3%80%E6%B5%8B%E5%92%8C%E8%AE%A1%E6%95%B0/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&text=FastAPI调用MLP模型"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&title=FastAPI调用MLP模型"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&is_video=false&description=FastAPI调用MLP模型"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=FastAPI调用MLP模型&body=Check out this article: http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&title=FastAPI调用MLP模型"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&title=FastAPI调用MLP模型"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&title=FastAPI调用MLP模型"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&title=FastAPI调用MLP模型"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&name=FastAPI调用MLP模型&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&t=FastAPI调用MLP模型"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FastAPI%E7%A8%8B%E5%BA%8F"><span class="toc-number">2.</span> <span class="toc-text">FastAPI程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Request%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">Request测试代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E5%90%8E%E7%AB%AF%E8%B0%83%E7%94%A8%E4%BB%A3%E7%A0%81"><span class="toc-number">4.</span> <span class="toc-text">Java后端调用代码</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        FastAPI调用MLP模型
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">echen</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-06-05T02:38:21.000Z" class="dt-published" itemprop="datePublished">2024-06-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/FastAPI/" rel="tag">FastAPI</a>, <a class="p-category" href="/tags/MLP/" rel="tag">MLP</a>, <a class="p-category" href="/tags/Python/" rel="tag">Python</a>, <a class="p-category" href="/tags/Tensorflow/" rel="tag">Tensorflow</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在实现<a target="_blank" rel="noopener" href="http://pig.qrxa.net/">仔猪腹泻管理系统</a>(Piglet Diarrhea Detection System, 简称PDDS)时，为了实现系统内部可以直接智能检测病原类型，因此尝试过多种模型嵌入后端的方法。最终选取FastAPI来实现该功能。</p>
+<h2 id="FastAPI程序"><a href="#FastAPI程序" class="headerlink" title="FastAPI程序"></a>FastAPI程序</h2><p>将Tensorflow模型的Predict代码改为FastAPI程序的调用代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI, UploadFile, File</span><br><span class="line"><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="comment"># Load the pre-trained TensorFlow model</span></span><br><span class="line">model = tf.keras.models.load_model(<span class="string">&#x27;./model&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define the class labels for the model predictions</span></span><br><span class="line">class_labels = [<span class="string">&quot;health&quot;</span>, <span class="string">&quot;Ecoli&quot;</span>, <span class="string">&quot;rotavirus&quot;</span>, <span class="string">&quot;coronavirus&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define the target size for image resizing</span></span><br><span class="line">img_height = <span class="number">224</span></span><br><span class="line">img_width = <span class="number">224</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initialize the FastAPI application</span></span><br><span class="line">app = FastAPI()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Define the prediction response model</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Prediction</span>(<span class="title class_ inherited__">BaseModel</span>):</span><br><span class="line">    filename: <span class="built_in">str</span></span><br><span class="line">    prediction: <span class="built_in">str</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Define the prediction endpoint</span></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&quot;/predict&quot;</span>, response_model=Prediction</span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">predict</span>(<span class="params">file: UploadFile = File(<span class="params">...</span>)</span>):</span><br><span class="line">    <span class="comment"># Read the uploaded image file</span></span><br><span class="line">    contents = <span class="keyword">await</span> file.read()</span><br><span class="line">    <span class="comment"># Convert the image file to a NumPy array</span></span><br><span class="line">    np_img = np.frombuffer(contents, np.uint8)</span><br><span class="line">    <span class="comment"># Decode the image from the NumPy array</span></span><br><span class="line">    img = cv2.imdecode(np_img, cv2.IMREAD_COLOR)</span><br><span class="line">    <span class="comment"># Resize the image to the target size</span></span><br><span class="line">    img = cv2.resize(img, (img_height, img_width))</span><br><span class="line">    <span class="comment"># Convert the image to a NumPy array</span></span><br><span class="line">    img_array = np.array(img)</span><br><span class="line">    <span class="comment"># Ensure the image array is of type uint8</span></span><br><span class="line">    img_array = img_array.astype(np.uint8)</span><br><span class="line">    <span class="comment"># Expand dimensions to match the model&#x27;s input shape</span></span><br><span class="line">    img_array = np.expand_dims(img_array, axis=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Make a prediction using the model</span></span><br><span class="line">    predictions = model.predict(img_array)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Get the index of the highest probability class</span></span><br><span class="line">    predicted_class_index = np.argmax(predictions[<span class="number">0</span>])</span><br><span class="line">    <span class="comment"># Map the index to the corresponding class label</span></span><br><span class="line">    predicted_class = class_labels[predicted_class_index]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Return the prediction result</span></span><br><span class="line">    <span class="keyword">return</span> Prediction(filename=file.filename, prediction=predicted_class)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Run the FastAPI application</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">import</span> uvicorn</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Start the Uvicorn server to serve the FastAPI application</span></span><br><span class="line">    uvicorn.run(app=<span class="string">&#x27;main:app&#x27;</span>, host=<span class="string">&quot;127.0.0.1&quot;</span>, port=<span class="number">8000</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>然后在终端运行如下指令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uvicorn main:app --reload</span><br></pre></td></tr></table></figure>
+<p>即可启动</p>
+<h2 id="Request测试代码"><a href="#Request测试代码" class="headerlink" title="Request测试代码"></a>Request测试代码</h2><p>提供一个request.py的demo代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define the URL of the FastAPI prediction endpoint</span></span><br><span class="line">url = <span class="string">&quot;http://127.0.0.1:8000/predict&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Path to the image file you want to upload</span></span><br><span class="line">image_path = <span class="string">&quot;./img/111.jpg&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Open the image file in binary mode</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(image_path, <span class="string">&quot;rb&quot;</span>) <span class="keyword">as</span> image_file:</span><br><span class="line">    <span class="comment"># Prepare the files dictionary with the image file</span></span><br><span class="line">    files = &#123;<span class="string">&quot;file&quot;</span>: image_file&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Send a POST request to the FastAPI endpoint</span></span><br><span class="line">    response = requests.post(url, files=files)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Print the response from the server</span></span><br><span class="line">    <span class="built_in">print</span>(response.json())</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>在运行该代码之前，要将主程序跑起来。</p>
+<h2 id="Java后端调用代码"><a href="#Java后端调用代码" class="headerlink" title="Java后端调用代码"></a>Java后端调用代码</h2><p>API主要目的为JAVA后端可以调用，因此提供一个小demo。我们使用OkHttp库来实现该操作。<br>首先添加依赖：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.squareup.okhttp3&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;okhttp&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;<span class="number">4.9</span><span class="number">.3</span>&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>JAVA代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> okhttp3.*;</span><br><span class="line"><span class="keyword">import</span> org.json.JSONArray;</span><br><span class="line"><span class="keyword">import</span> org.json.JSONObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastApiClient</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">OkHttpClient</span> <span class="variable">client</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">OkHttpClient</span>.Builder()</span><br><span class="line">                .connectTimeout(<span class="number">30</span>, TimeUnit.SECONDS)</span><br><span class="line">                .writeTimeout(<span class="number">30</span>, TimeUnit.SECONDS)</span><br><span class="line">                .readTimeout(<span class="number">30</span>, TimeUnit.SECONDS)</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;http://localhost:8000/predict&quot;</span>;</span><br><span class="line"></span><br><span class="line">        MultipartBody.<span class="type">Builder</span> <span class="variable">multipartBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MultipartBody</span>.Builder().setType(MultipartBody.FORM);</span><br><span class="line"></span><br><span class="line">        <span class="type">File</span> <span class="variable">folder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;G:/mlp/test_data/coronavirus&quot;</span>);</span><br><span class="line">        File[] listOfFiles = folder.listFiles();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (listOfFiles != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (File file : listOfFiles) &#123;</span><br><span class="line">                <span class="keyword">if</span> (file.isFile()) &#123;</span><br><span class="line">                    multipartBuilder.addFormDataPart(<span class="string">&quot;files&quot;</span>, file.getName(),</span><br><span class="line">                            RequestBody.create(file, MediaType.parse(<span class="string">&quot;image/jpeg&quot;</span>)));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">RequestBody</span> <span class="variable">requestBody</span> <span class="operator">=</span> multipartBuilder.build();</span><br><span class="line"></span><br><span class="line">        <span class="type">Request</span> <span class="variable">request</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Request</span>.Builder()</span><br><span class="line">                .url(url)</span><br><span class="line">                .post(requestBody)</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> (<span class="type">Response</span> <span class="variable">response</span> <span class="operator">=</span> client.newCall(request).execute()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!response.isSuccessful()) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Unexpected code &quot;</span> + response);</span><br><span class="line"></span><br><span class="line">            <span class="type">String</span> <span class="variable">responseBody</span> <span class="operator">=</span> response.body().string();</span><br><span class="line">            <span class="type">JSONArray</span> <span class="variable">jsonArray</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONArray</span>(responseBody);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; jsonArray.length(); i++) &#123;</span><br><span class="line">                <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> jsonArray.getJSONObject(i);</span><br><span class="line">                <span class="type">String</span> <span class="variable">filename</span> <span class="operator">=</span> jsonObject.getString(<span class="string">&quot;filename&quot;</span>);</span><br><span class="line">                <span class="type">String</span> <span class="variable">prediction</span> <span class="operator">=</span> jsonObject.getString(<span class="string">&quot;prediction&quot;</span>);</span><br><span class="line">                System.out.println(<span class="string">&quot;Image &quot;</span> + filename + <span class="string">&quot; is predicted as: &quot;</span> + prediction);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/lives/">lives</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FastAPI%E7%A8%8B%E5%BA%8F"><span class="toc-number">2.</span> <span class="toc-text">FastAPI程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Request%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">Request测试代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E5%90%8E%E7%AB%AF%E8%B0%83%E7%94%A8%E4%BB%A3%E7%A0%81"><span class="toc-number">4.</span> <span class="toc-text">Java后端调用代码</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&text=FastAPI调用MLP模型"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&title=FastAPI调用MLP模型"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&is_video=false&description=FastAPI调用MLP模型"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=FastAPI调用MLP模型&body=Check out this article: http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&title=FastAPI调用MLP模型"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&title=FastAPI调用MLP模型"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&title=FastAPI调用MLP模型"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&title=FastAPI调用MLP模型"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&name=FastAPI调用MLP模型&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://foolcoder.com/2024/06/05/FastAPI%E8%B0%83%E7%94%A8MLP%E6%A8%A1%E5%9E%8B/&t=FastAPI调用MLP模型"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2024
+    echen
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/lives/">lives</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+    <!-- jquery -->
+
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+<!-- clipboard -->
+
+  
+    
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
